@@ -17,9 +17,120 @@ fn write_output(output: String) {
 fn main() {
     let _input = read_input();
 
-    let _output = d1b(_input);
+    let _output = d2b(_input);
 
     write_output(_output);
+}
+
+fn d2b(input: String) -> String {
+    let mut sum_powers: i32 = 0;
+
+    for line in input.lines() {
+        let (game_name, sets) = d2_split_game_details(line);
+
+        let mut red = 0;
+        let mut green = 0;
+        let mut blue = 0;
+
+        for set in sets {
+            let quantities = d2_colors_and_numbers(&set);
+
+            for (color, quantity) in quantities {
+                if color == "red" {
+                    if quantity > red {
+                        red = quantity;
+                    }
+                } else if color == "green" {
+                    if quantity > green {
+                        green = quantity;
+                    }
+                } else if color == "blue" {
+                    if quantity > blue {
+                        blue = quantity;
+                    }
+                }
+            }
+        }
+
+        let game_id = game_name.split_whitespace().nth(1).unwrap_or("0").parse::<i32>().unwrap_or(0);
+
+        sum_powers += red * green * blue;
+    }
+
+    return sum_powers.to_string();
+}
+
+fn d2a(input: String) -> String {
+    let mut sum_ids: i32 = 0;
+
+    for line in input.lines() {
+        let (game_name, sets) = d2_split_game_details(line);
+
+        let mut valid = true;
+
+        for set in sets {
+            let mut red = 12;
+            let mut green = 13;
+            let mut blue = 14;
+            
+            let quantities = d2_colors_and_numbers(&set);
+
+            for (color, quantity) in quantities {
+                if color == "red" {
+                    red -= quantity
+                } else if color == "green" {
+                    green -= quantity;
+                } else if color == "blue" {
+                    blue -= quantity;
+                }
+            }
+
+            if red < 0 || green < 0 || blue < 0 {
+                valid = false;
+                break;
+            }
+        }
+
+        let game_id = game_name.split_whitespace().nth(1).unwrap_or("0").parse::<i32>().unwrap_or(0);
+
+        if valid {
+            // valid game, let's add the game id into the sum:
+
+            println!("valid: {}", game_id);
+
+            sum_ids += game_id;
+        } else {
+            println!("invalid: {}", game_id);
+        }
+    }
+
+    return sum_ids.to_string();
+}
+
+fn d2_split_game_details(line: &str) -> (String, Vec<String>) {
+    let parts: Vec<&str> = line.splitn(2, ':').collect();
+    let game_name = parts[0].trim().to_string();
+    let groups = parts[1]
+        .split(';')
+        .map(|s| s.trim().to_string())
+        .collect();
+
+    (game_name, groups)
+}
+
+fn d2_colors_and_numbers(input: &str) -> Vec<(String, i32)> {
+    input.split(',')
+        .filter_map(|pair| {
+            let parts: Vec<&str> = pair.trim().split_whitespace().collect();
+            if parts.len() == 2 {
+                let quantity = parts[0].parse::<i32>().ok()?;
+                let color = parts[1].to_string();
+                Some((color, quantity))
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 fn d1a(input: String) -> String {
